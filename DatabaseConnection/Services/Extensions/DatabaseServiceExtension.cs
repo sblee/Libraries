@@ -8,24 +8,24 @@ namespace DatabaseConnection.Services.Extensions;
 
 public static class DatabaseServiceExtension
 {
-    public static DatabaseServiceBuilder<TKey> AddDatabaseService<TKey>(this IServiceCollection services) where TKey : notnull
+    public static DatabaseServiceBuilder AddDatabaseService(this IServiceCollection services)
     {
-        services.Configure<DatabaseConnectionOption<TKey>>(config =>
+        services.Configure<DatabaseConnectionOption>(config =>
         {
             config.ConnectionConfigDictionary = [];
         });
 
-        services.AddTransient<IDatabaseService, DatabaseService<TKey>>();
+        services.AddTransient<IDatabaseService, DatabaseService>();
         services.AddKeyedTransient<IDatabaseProviderService, SqlServerDatabaseProviderService>(DatabaseProviderTypes.SqlServer);
 
-        DatabaseServiceBuilder<TKey> builder = new(services);
+        DatabaseServiceBuilder builder = new(services);
 
         return builder;
     }
 
-    public static DatabaseServiceBuilder<TKey> AddConnection<TKey>(this DatabaseServiceBuilder<TKey> databaseServiceBuilder, TKey key, Action<DatabaseConnectionExtensionConfig> action) where TKey : notnull
+    public static DatabaseServiceBuilder AddConnection(this DatabaseServiceBuilder databaseServiceBuilder, string key, Action<DatabaseConnectionExtensionConfig> action)
     {
-        databaseServiceBuilder.Services.Configure<DatabaseConnectionOption<TKey>>(options =>
+        databaseServiceBuilder.Services.Configure<DatabaseConnectionOption>(options =>
         {
             if (options.ConnectionConfigDictionary.TryGetValue(key, out _))
             {

@@ -2,9 +2,7 @@
 
 namespace DatabaseConnection.Interfaces.Services;
 
-public interface IDatabaseService { }
-
-internal interface IDatabaseService<TKey> : IDatabaseService where TKey : notnull
+public interface IDatabaseService
 {
     /// <summary>
     /// Executes a stored procedure asynchronously and maps the result set to a collection of TReturn objects.
@@ -17,5 +15,5 @@ internal interface IDatabaseService<TKey> : IDatabaseService where TKey : notnul
     /// <param name="sqlTimeout">The timeout for the SQL command.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns></returns>
-    Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<SqlDataReader, TReturn> mapRow, TKey? databaseConnectionKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<SqlDataReader, TReturn> mapRow, string? databaseConnectionKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
 }

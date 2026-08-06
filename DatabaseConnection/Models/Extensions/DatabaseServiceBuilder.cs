@@ -2,7 +2,7 @@
 
 namespace DatabaseConnection.Models.Extensions;
 
-public sealed class DatabaseServiceBuilder<TKey>(IServiceCollection services) where TKey : notnull
+public sealed class DatabaseServiceBuilder(IServiceCollection services)
 {
     public IServiceCollection Services { get; } = services;
 }

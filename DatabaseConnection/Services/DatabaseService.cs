@@ -8,11 +8,11 @@ using Microsoft.Extensions.Options;
 
 namespace DatabaseConnection.Services;
 
-internal class DatabaseService<TKey>(IServiceProvider serviceProvider, IOptions<DatabaseConnectionOption<TKey>> options, ILogger<DatabaseService<TKey>> logger) : IDatabaseService<TKey> where TKey : notnull
+internal class DatabaseService(IServiceProvider serviceProvider, IOptions<DatabaseConnectionOption> options, ILogger<DatabaseService> logger) : IDatabaseService
 {
     #region Publics
 
-    public Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<SqlDataReader, TReturn> mapRow, TKey? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<SqlDataReader, TReturn> mapRow, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -20,7 +20,7 @@ internal class DatabaseService<TKey>(IServiceProvider serviceProvider, IOptions<
 
             IDatabaseProviderService databaseProviderService = serviceProvider.GetRequiredKeyedService<IDatabaseProviderService>(connectionConfig.DatabaseProviderType);
 
-            return databaseProviderService.ExecuteStoredProcedureAsync(connectionConfig.ConnectionString, storedProcedureName, mapRow, parameters, sqlTimeout, cancellationToken);
+            return await databaseProviderService.ExecuteStoredProcedureAsync(connectionConfig.ConnectionString, storedProcedureName, mapRow, parameters, sqlTimeout, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -33,7 +33,7 @@ internal class DatabaseService<TKey>(IServiceProvider serviceProvider, IOptions<
 
     #region Privates
 
-    private DatabaseConnectionConfig? GetDatabaseConnectionConfig(TKey? connectionConfigKey) 
+    private DatabaseConnectionConfig? GetDatabaseConnectionConfig(string? connectionConfigKey) 
     {
         if(connectionConfigKey == null) 
         {
