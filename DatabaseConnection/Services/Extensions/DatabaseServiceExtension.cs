@@ -9,12 +9,6 @@ namespace DatabaseConnection.Services.Extensions;
 
 public static class DatabaseServiceExtension
 {
-    #region Properties
-
-    private static bool _isSqliteInitiated { get; set; }
-
-    #endregion Properties
-
     /// <summary>
     /// Add database service
     /// </summary>
@@ -22,10 +16,9 @@ public static class DatabaseServiceExtension
     /// <returns></returns>
     public static DatabaseServiceBuilder AddDatabaseService(this IServiceCollection services)
     {
-        services.Configure<DatabaseConnectionOption>(config =>
-        {
-            config.ConnectionConfigDictionary = [];
-        });
+        services.AddOptions<DatabaseConnectionOption>()
+            .Configure(config => config.ConnectionConfigDictionary = [])
+            .ValidateOnStart();
 
         services.AddTransient<IDatabaseService, DatabaseService>();
 
@@ -45,7 +38,6 @@ public static class DatabaseServiceExtension
     /// <exception cref="ArgumentException"></exception>
     public static DatabaseServiceBuilder AddSqlServerConnection(this DatabaseServiceBuilder databaseServiceBuilder, string key, Action<DatabaseConnectionExtensionConfig> action)
     {
-        
         databaseServiceBuilder.Services.Configure<DatabaseConnectionOption>(options =>
         {
             if (options.ConnectionConfigDictionary.TryGetValue(key, out _))
@@ -77,7 +69,6 @@ public static class DatabaseServiceExtension
 
     public static DatabaseServiceBuilder AddSqliteConnection(this DatabaseServiceBuilder databaseServiceBuilder, string key, Action<DatabaseConnectionExtensionConfig> action)
     {
-
         databaseServiceBuilder.Services.Configure<DatabaseConnectionOption>(options =>
         {
             if (options.ConnectionConfigDictionary.TryGetValue(key, out _))
@@ -104,11 +95,7 @@ public static class DatabaseServiceExtension
 
         databaseServiceBuilder.Services.TryAddKeyedTransient<IDatabaseQueryProviderService, SqliteDatabaseProviderService>(DatabaseProviderTypes.Sqlite);
 
-        if (!_isSqliteInitiated)
-        {
-            SQLitePCL.Batteries_V2.Init();
-            _isSqliteInitiated = true;
-        }
+        SQLitePCL.Batteries_V2.Init();
 
         return databaseServiceBuilder;
     }
