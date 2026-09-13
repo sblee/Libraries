@@ -2,9 +2,7 @@
 
 public class DatabaseConnectionExtensionConfig
 {
-    public DatabaseProviderTypes DatabaseProviderType { get; set; }
-
-    public string ConnectionString { get; set; } = default!;
+    public string? ConnectionString { get; set; }
 
     public bool IsDefault { get; set; } = false;
 }

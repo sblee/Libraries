@@ -1,4 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
 
 namespace DatabaseConnection.Interfaces.Services;
 
@@ -10,10 +10,14 @@ public interface IDatabaseService
     /// <typeparam name="TReturn">The type of objects to return.</typeparam>
     /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
     /// <param name="mapRow">A function to map each row of the result set to a TReturn object.</param>
-    /// <param name="databaseConnectionKey">An optional key to select a specific database connection string.</param>
+    /// <param name="connectionConfigKey">An optional key to select a specific database connection string.</param>
     /// <param name="parameters">The parameters for the stored procedure.</param>
     /// <param name="sqlTimeout">The timeout for the SQL command.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns></returns>
-    Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<SqlDataReader, TReturn> mapRow, string? databaseConnectionKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TReturn>> ExecuteStoredProcedureAsync<TReturn>(string storedProcedureName, Func<IDataReader, TReturn> mapRow, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<(bool isSuccess, string batchQuery, Exception? exception)>> ExecuteSqlFileAsync(string filePath, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
+
+    Task<(bool isSuccess, Exception? exception)> ExecuteNonQueryAsync(string query, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
 }

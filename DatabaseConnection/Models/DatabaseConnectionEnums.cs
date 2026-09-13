@@ -2,5 +2,6 @@
 
 public enum DatabaseProviderTypes
 {
-    SqlServer
+    SqlServer,
+    Sqlite
 }

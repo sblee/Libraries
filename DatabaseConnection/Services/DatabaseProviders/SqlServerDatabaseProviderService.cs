@@ -12,11 +12,9 @@ internal class SqlServerDatabaseProviderService : IDatabaseProviderService
     {
         await using SqlConnection connection = new(connectionString);
         await connection.OpenAsync(cancellationToken);
-        await using SqlCommand command = new(storedProcedureName, connection)
-        {
-            CommandType = CommandType.StoredProcedure,
-            CommandTimeout = sqlTimeout
-        };
+        await using SqlCommand command = new(storedProcedureName, connection);
+        command.CommandType = CommandType.StoredProcedure;
+        command.CommandTimeout = sqlTimeout;
 
         if (parameters != null)
         {
@@ -34,7 +32,28 @@ internal class SqlServerDatabaseProviderService : IDatabaseProviderService
             results.Add(mapRow(reader));
         }
 
-        return results;   
+        return results;
+    }
+
+    public async Task ExecuteNonQueryAsync(string connectionString, string sql, Dictionary<string, object>? parameters, int sqlTimeout, CancellationToken cancellationToken = default) 
+    {
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using SqlCommand command = connection.CreateCommand();
+
+        if (parameters != null)
+        {
+            foreach (var param in parameters)
+            {
+                command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+            }
+        }
+
+        command.CommandText = sql;
+        command.CommandType = CommandType.Text;
+        command.CommandTimeout = sqlTimeout;
+
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
     #endregion Publics
