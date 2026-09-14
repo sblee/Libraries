@@ -56,5 +56,31 @@ internal class SqlServerDatabaseProviderService : IDatabaseProviderService
         await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
+    public async Task<DataTable> ExecuteDataTableAsync(string connectionString, string sql, Dictionary<string, object>? parameters, int sqlTimeout, CancellationToken cancellationToken = default)
+    {
+        await using SqlConnection connection = new(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        await using SqlCommand command = connection.CreateCommand();
+
+        if (parameters != null)
+        {
+            foreach (var param in parameters)
+            {
+                command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+            }
+        }
+
+        command.CommandText = sql;
+        command.CommandType = CommandType.Text;
+        command.CommandTimeout = sqlTimeout;
+
+        DataTable dataTable = new();
+
+        using SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+        dataTable.Load(reader);
+
+        return dataTable;
+    }
+
     #endregion Publics
 }

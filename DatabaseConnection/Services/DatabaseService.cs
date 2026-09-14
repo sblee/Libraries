@@ -113,6 +113,34 @@ internal partial class DatabaseService(IServiceProvider serviceProvider, IOption
         }
     }
 
+    public async Task<(bool isSuccess, DataTable? dataTable, Exception? exception)> ExecuteDataTableAsync(string query, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(query))
+        {
+            return (false, null, new ArgumentException("Invalid null or empty query."));
+        }
+
+        DatabaseConnectionConfig? connectionConfig = GetDatabaseConnectionConfig(connectionConfigKey);
+        if (connectionConfig == null)
+        {
+            return (false, null, new ArgumentException("Database connection configuration not found."));
+        }
+
+        try
+        {
+            var databaseQueryProviderService = serviceProvider.GetRequiredKeyedService(connectionConfig.DatabaseProviderInterfaceType, connectionConfig.DatabaseProviderType);
+
+            DataTable dataTable = await ((IDatabaseQueryProviderService)databaseQueryProviderService).ExecuteDataTableAsync(connectionConfig.ConnectionString, query, parameters, sqlTimeout, cancellationToken);
+
+            return (true, dataTable, null);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error executing the following query: {query}", query);
+            return (false, null, ex);
+        }
+    }
+
     #endregion Publics
 
     #region Privates

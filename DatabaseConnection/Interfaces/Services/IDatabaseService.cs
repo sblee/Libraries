@@ -20,4 +20,6 @@ public interface IDatabaseService
     Task<IEnumerable<(bool isSuccess, string batchQuery, Exception? exception)>> ExecuteSqlFileAsync(string filePath, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
 
     Task<(bool isSuccess, Exception? exception)> ExecuteNonQueryAsync(string query, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
+
+    Task<(bool isSuccess, DataTable? dataTable, Exception? exception)> ExecuteDataTableAsync(string query, string? connectionConfigKey = default, Dictionary<string, object>? parameters = null, int sqlTimeout = 30, CancellationToken cancellationToken = default);
 }
